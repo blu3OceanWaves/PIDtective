@@ -902,6 +902,15 @@ def main():
     """
     Main function to parse arguments and run the analysis.
     """
+    banner = f"""
+    ___    ___     ___     _                       _        _                    
+   │ _ ╲  │_ _│   │   ╲   │ │_     ___     __     │ │_     (_)    __ __    ___   
+   │  _╱   │ │    │ │) │  │  _│   ╱ ─_)   ╱ _│    │  _│    │ │    ╲ V ╱   ╱ ─_)  
+  _│_│_   │___│   │___╱   _╲__│   ╲___│   ╲__│_   _╲__│   _│_│_   _╲_╱_   ╲___│  
+_│     │_│     │_│     │_│     │_│     │_│     │_│     │_│     │_│     │_│     │ 
+"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─'"`─0─0─' 
+    """
+    print(banner)
     parser = argparse.ArgumentParser(
         description="Analyze a process's ancestry and historical context.",
         formatter_class=argparse.RawTextHelpFormatter
@@ -928,7 +937,7 @@ def main():
         sys.exit(1)
 
     args = parser.parse_args()
-
+    
     # Check if we are running as root, as /proc/ and logs may not be readable otherwise
     if os.getuid() != 0:
         print(f"{Colors.WARNING}Warning: Not running as root. Some information may be inaccessible. "
