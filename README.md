@@ -1,7 +1,7 @@
 # PIDtective
 ## Overview
 
-PIDtective is a powerful Linux forensic tool designed to reconstruct the ancestry and historical context of a process. By combining real-time data from running processes with historical log evidence, it provides a comprehensive view of process activity, related processes, and system events. The tool is especially useful for incident response, malware analysis, and forensic investigations.
+PIDtective is a Linux forensic tool designed to reconstruct the ancestry and historical context of a process. By combining real-time data from running processes with historical log evidence, it provides a comprehensive view of process activity, related processes, and system events. The tool is especially useful for incident response, malware analysis, and forensic investigations.
 
 ## Features
 
