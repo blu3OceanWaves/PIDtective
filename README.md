@@ -91,8 +91,9 @@ Related Processes:
 - Does not require pre-installation or running daemons
 - Output accuracy depends on system logging configuration
 ---
-## Connect with me
-
+## Contact
+For bugs, feedback, or questions, connect with me on LinkedIn:<br>
+<br>
 <a href="https://www.linkedin.com/in/yassin-el-wardioui-34016b332" target="_blank">
   <img src="https://img.shields.io/badge/LinkedIn-Connect%20with%20me-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0077B5&color=004182" />
 </a>
