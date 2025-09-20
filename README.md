@@ -1,82 +1,91 @@
-# PIDtective
-## Overview
+# Process Ancestry Tracer
 
-PIDtective is a Linux forensic tool designed to reconstruct the ancestry and historical context of a process. By combining real-time data from running processes with historical log evidence, it provides a comprehensive view of process activity, related processes, and system events. The tool is especially useful for incident response, malware analysis, and forensic investigations.
+A tool that reconstructs process parent-child relationships by reading `/proc` and parsing system logs.
 
-## Features
+## What it does
 
-- Live Process Analysis: Extracts detailed information from /proc, including PID, PPID, command, arguments, UID, GID, start time, and status.
+- Reads `/proc/<pid>/` files to build process ancestry chains
+- Searches systemd journal and syslog for process-related events
+- Correlates log entries with running processes based on PID, command name, and timing
+- Displays process hierarchies with start times and confidence scores
 
-- Historical Log Correlation: Parses systemd journal, syslog, and authentication logs to find past events related to processes.
+## Installation
 
-- Ancestry Reconstruction: Builds parent-child process chains and fills gaps using historical events.
+```bash
+git clone https://github.com/blu3OceanWaves/PIDtective.git
+cd PIDtective
+chmod +x pidtective.py
+```
 
-- Related Processes Detection: Identifies child processes, siblings, and other related processes for context.
-
-- Chronological Timeline: Generates a timeline of process starts, historical events, and related processes.
-
-- Confidence Scoring: Assigns confidence levels to ancestry and event correlations for reliability assessment.
-
-- User-Friendly Output: Color-coded, structured terminal reports for readability.
-
-- Extensible Architecture: Modular design allows easy integration of additional log sources or correlation methods.
-
-## Requirements
-
-- Python 3.8 or higher
-
-- inux system with access to /proc and log files (/var/log/syslog, /var/log/messages, /var/log/auth.log, or systemd journal)
-
-- Root privileges recommended for full access
+Requires Python 3.6+. Uses only standard library modules.
 
 ## Usage
 
-Run the tool with the target PID as the main argument:
 ```bash
-sudo python3 process_ancestry_analyzer.py <PID>
+# Basic usage
+sudo python3 pidtective.py <PID>
+
+# Search logs from last 48 hours
+sudo python3 pidtective.py <PID> --hours-back 48
+
+# Verbose output
+sudo python3 pidtective.py <PID> -v
 ```
-### Optional arguments:
-```bash
--H, --hours-back : Number of hours to search historical logs (default: 24)
 
--v, --verbose : Enable verbose output for debugging
+## Example output
+
 ```
-- Example:
-```bash
-sudo python3 PIDtective.py 1234 -H 48 -v
+--- Process Ancestry Report for PID 1337 ---
+
+Evidence Summary:
+  - Running Processes Scanned: 342
+  - Historical Events Collected: 23
+  - Analysis Confidence: 1.0
+
+Ancestry Chain:
+├── PID 1 (PPID: 0)
+    Command: /sbin/init
+    Start Time: 2024-01-15 09:23:14
+└── PID 1337 (PPID: 1)
+    Command: /bin/bash script.sh
+    Start Time: 2024-01-15 10:15:33
+    Confidence: 1.0
+
+Related Processes:
+  - Child: PID 1338 (grep)
 ```
-## Output
 
-The tool produces a detailed console report including:
+## How it works
 
-Evidence Summary: Number of processes scanned and historical events collected.
+1. **Process scanning**: Reads `/proc/<pid>/status`, `/proc/<pid>/cmdline`, and `/proc/<pid>/stat` for all running processes
+2. **Log parsing**: Searches systemd journal (if available) and syslog files for process creation events
+3. **Correlation**: Matches log entries to processes using PID, command name, user ID, and timing within a 10-minute window
+4. **Confidence scoring**: Assigns reliability scores based on strength of evidence correlation
 
-Ancestry Chain: Parent-child relationships, command details, start times, and confidence scores.
+## Data sources
 
-Related Processes: Children and siblings of the target process.
+- `/proc` filesystem (running processes only)
+- systemd journal (`journalctl` output)
+- `/var/log/syslog` or `/var/log/messages`
+- `/var/log/auth.log` (limited support)
 
-Chronological Timeline: Ordered list of all relevant events for situational context.
+## Limitations
 
-## Use Cases
-
-1. Incident response and forensic investigations
-
-2. Malware or rootkit analysis
-
-3. Process activity reconstruction for security audits
-
-4. System behavior analysis and debugging
+- Historical analysis depends on log retention policies
+- Terminated processes only visible in logs if they generated logged events
+- Some `/proc` information requires root access
+- Log parsing uses basic pattern matching - may miss events in non-standard formats
+- Confidence scores are heuristic-based, not statistically validated
 
 ## Notes
 
-- Running as root is recommended to access all processes and logs.
-
-- Recently ended or short-duration processes may not appear in the running process chain but may be captured in historical events.
-
-- Confidence scores help prioritize reliable correlations, but manual verification is recommended for critical investigations.
-
+- Run with `sudo` for complete system access
+- Works best on processes created within the log retention window
+- Does not require pre-installation or running daemons
+- Output accuracy depends on system logging configuration
 ---
+## Connect with me
 
-## Contributing
-
-Contributions, bug reports, and feature requests are welcome. Consider adding support for additional log sources or enhancing correlation algorithms.
+<a href="https://www.linkedin.com/in/yassin-el-wardioui-34016b332" target="_blank">
+  <img src="https://img.shields.io/badge/LinkedIn-Connect%20with%20me-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0077B5&color=004182" />
+</a>
