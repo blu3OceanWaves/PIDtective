@@ -36,24 +36,30 @@ sudo python3 pidtective.py <PID> -v
 ## Example output
 
 ```
---- Process Ancestry Report for PID 1337 ---
+--- Process Ancestry Report for PID 1140 ---
 
 Evidence Summary:
-  - Running Processes Scanned: 342
-  - Historical Events Collected: 23
-  - Analysis Confidence: 1.0
+  - Running Processes Scanned: 330
+  - Historical Events Collected: 2718
+    - Systemd-Journal Logs: 2718 events
+  - Analysis Confidence: 1.00 (1.00 = High Confidence)
 
 Ancestry Chain:
-├── PID 1 (PPID: 0)
-    Command: /sbin/init
-    Start Time: 2024-01-15 09:23:14
-└── PID 1337 (PPID: 1)
-    Command: /bin/bash script.sh
-    Start Time: 2024-01-15 10:15:33
-    Confidence: 1.0
+  ├── PID 1 (PPID: 0)
+      Command: /sbin/init splash
+      Start Time: 2025-09-20 15:17:06
+      Confidence: 1.00
+  └── PID 1140 (PPID: 1)
+      Command: /usr/bin/containerd
+      Start Time: 2025-09-20 15:17:17
+      Confidence: 1.00
 
 Related Processes:
-  - Child: PID 1338 (grep)
+  - Sibling: PID 519 (systemd-journal)
+    Start Time: 2025-09-20 15:17:14
+  - Sibling: PID 537 (systemd-timesyn)
+    Start Time: 2025-09-20 15:17:14
+...
 ```
 
 ## How it works
