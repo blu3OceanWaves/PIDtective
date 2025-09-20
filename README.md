@@ -1,4 +1,4 @@
-# Process Ancestry Tracer
+# PIDtective
 <img width="653" height="126" alt="image" src="https://github.com/user-attachments/assets/ca3788a7-89ed-4206-b82c-225d74c318e7" />
 
 -A tool that reconstructs process parent-child relationships by reading `/proc` and parsing system logs.-
