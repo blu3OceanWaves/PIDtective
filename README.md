@@ -1,14 +1,22 @@
 # PIDtective
-<img width="653" height="126" alt="image" src="https://github.com/user-attachments/assets/ca3788a7-89ed-4206-b82c-225d74c318e7" />
 
--A tool that reconstructs process parent-child relationships by reading `/proc` and parsing system logs.-
+*Retrospective process analysis without requiring pre-installed monitoring*
 
-## What it does
+## What PIDtective Actually Does
 
-- Reads `/proc/<pid>/` files to build process ancestry chains
-- Searches systemd journal and syslog for process-related events
-- Correlates log entries with running processes based on PID, command name, and timing
-- Displays process hierarchies with start times and confidence scores
+PIDtective correlates running process data from `/proc` with system logs to provide context about how processes came to be. It presents available evidence clearly without making reliability claims about correlations.
+
+**Core functionality:**
+- Reads `/proc` filesystem to build process ancestry chains
+- Searches systemd journal and syslog for process-related events  
+- Shows correlations based on PID matches, command names, and timing proximity
+- Displays evidence with clear reasoning for why entries might be related
+
+**What it doesn't do:**
+- Generate automated reports or IOC extraction
+- Provide confidence scores or reliability metrics
+- Monitor processes in real-time
+- Replace comprehensive forensic tools
 
 ## Installation
 
@@ -18,35 +26,36 @@ cd PIDtective
 chmod +x pidtective.py
 ```
 
-Requires Python 3.6+. Uses only standard library modules.
+**Requirements:**
+- Python 3.6+
+- Linux system with `/proc` filesystem
+- Root access recommended for complete log access
+
+Uses only standard library modules - no external dependencies.
 
 ## Usage
 
 ```bash
-# Basic usage
+# Basic analysis
 sudo python3 pidtective.py <PID>
 
-# Search logs from last 48 hours
+# Search further back in logs
 sudo python3 pidtective.py <PID> --hours-back 48
 
-# Verbose output
+# Verbose output showing collection details
 sudo python3 pidtective.py <PID> -v
 ```
 
-## Example output
+## Example Output
 
 ```
-sudo python3 pidtective.py -v 2657
-                                                                                                                                                                                                     ─╯
-Found 1196 systemd events
-Collected 339 running processes.
-Collected 1196 log events from the last 24 hours.
+sudo python3 pidtective.py 2657
 
 === PIDtective Analysis for PID 2657 ===
 
 Analysis Notes:
   • Log evidence sourced from: systemd-journal
-  • Correlation time window set to 300 seconds (defined by LOG_TIME_WINDOW_SEC).
+  • Correlation time window set to 300 seconds
 
 Process Ancestry (from /proc):
   ├── PID 1 (PPID: 0) - systemd
@@ -56,58 +65,88 @@ Process Ancestry (from /proc):
       Command Line: /usr/libexec/udisks2/udisksd
       Started: 2025-09-27 15:56:12
 
-Related Processes (Children/Siblings):
-  • Sibling: PID 522 (systemd-journal)
-    Command Line: /usr/lib/systemd/systemd-journald
-    Started: 2025-09-27 15:55:29
-[...]
-
 Potentially Related Log Entries (Top 10):
   [2025-09-27 15:56:12] (systemd-journal) PID: 1402
-    Message: dbus-daemon[1402]: [session uid=125 pid=1402 pidfd=5] Successfully activated service 'org.freedeskto...
+    Message: dbus-daemon[1402]: Successfully activated service...
     Correlations: Within 300s of ancestor start
-[...]
-
-
-=== End Analysis ===
 
 DISCLAIMER: This tool correlates available evidence but cannot
-guarantee accuracy.
-Always verify findings through additional investigation methods.
+guarantee accuracy. Always verify findings through additional
+investigation methods.
 ```
 
-## How it works
+## How Correlation Works
 
-1. **Process scanning**: Reads `/proc/<pid>/status`, `/proc/<pid>/cmdline`, and `/proc/<pid>/stat` for all running processes
-2. **Log parsing**: Searches systemd journal (if available) and syslog files for process creation events
-3. **Correlation**: Matches log entries to processes using PID, command name, user ID, and timing within a 10-minute window
-4. **Confidence scoring**: Assigns reliability scores based on strength of evidence correlation
+1. **Process Collection**: Scans `/proc` for all running processes and their metadata
+2. **Log Parsing**: Searches systemd journal and syslog files for process-related events
+3. **Evidence Correlation**: Matches log entries using:
+   - Direct PID matches
+   - Command name matches  
+   - Events within 5 minutes of process start times
+4. **Evidence Presentation**: Shows correlation reasoning without reliability scores
 
-## Data sources
+## Data Sources
 
-- `/proc` filesystem (running processes only)
-- systemd journal (`journalctl` output)
-- `/var/log/syslog` or `/var/log/messages`
-- `/var/log/auth.log` (limited support)
+**Live process data:**
+- `/proc/<pid>/status` - Process metadata
+- `/proc/<pid>/cmdline` - Command line arguments
+- `/proc/<pid>/stat` - Process statistics and start time
 
-## Limitations
+**Historical log data:**
+- `journalctl` output (systemd journal)
+- `/var/log/syslog` (Debian/Ubuntu)
+- `/var/log/messages` (RHEL/CentOS)
 
-- Historical analysis depends on log retention policies
-- Terminated processes only visible in logs if they generated logged events
-- Some `/proc` information requires root access
-- Log parsing uses basic pattern matching - may miss events in non-standard formats
-- Confidence scores are heuristic-based, not statistically validated
+## Realistic Limitations
 
-## Notes
+**Time sensitivity:**
+- Most effective within 24-48 hours of process generation
+- Depends entirely on system log retention configuration
+- Older processes may have no discoverable log traces
 
-- Run with `sudo` for complete system access
-- Works best on processes created within the log retention window
-- Does not require pre-installation or running daemons
-- Output accuracy depends on system logging configuration
----
+**Log dependency:**
+- Only finds processes that generated logged events
+- Transient processes may leave minimal evidence
+- Non-interactive system processes often generate few logs
+
+**Access requirements:**
+- Some `/proc` information requires root privileges
+- Log files typically need elevated access
+- May miss information without proper permissions
+
+**Analysis scope:**
+- Shows correlations, not definitive relationships
+- Basic pattern matching may miss non-standard log formats
+- Cannot verify if correlations represent actual causation
+
+## When PIDtective is Useful
+
+**Good scenarios:**
+- Investigating suspicious processes discovered during incident response
+- Understanding how system services started during boot
+- Quick triage when comprehensive monitoring wasn't already running
+- Learning process relationships on unfamiliar systems
+
+**Not suitable for:**
+- Real-time process monitoring
+- Automated malware analysis pipelines
+- High-volume forensic processing
+
+## Comparison with Other Tools
+
+| Tool | Strengths | Use Case |
+|------|-----------|----------|
+| **PIDtective** | No setup required, works retroactively | Ad-hoc investigation of discovered processes |
+| **pstree** | Fast, reliable for current state | Quick process hierarchy visualization |
+| **osquery** | Comprehensive, historical data | Enterprise monitoring and investigation |
+| **ps aux** | Universal, accessible | Basic process listing and filtering |
+
+PIDtective fills the gap between simple process listing tools and comprehensive monitoring solutions.
+
 ## Contact
-For bugs, feedback, or questions, connect with me on LinkedIn:<br>
-<br>
+
+For questions or feedback:
+
 <a href="https://www.linkedin.com/in/yassin-el-wardioui-34016b332" target="_blank">
-  <img src="https://img.shields.io/badge/LinkedIn-Connect%20with%20me-0077B5?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=0077B5&color=004182" />
+  <img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
 </a>
