@@ -74,8 +74,6 @@ Potentially Related Log Entries (Top 10):
 DISCLAIMER: This tool correlates available evidence but cannot
 guarantee accuracy.
 Always verify findings through additional investigation methods.
-
-...
 ```
 
 ## How it works
