@@ -1,6 +1,6 @@
 # PIDtective
 
-*Retrospective process analysis without requiring pre-installed monitoring*
+*Retrospective process analysis*
 
 ## What PIDtective Actually Does
 
