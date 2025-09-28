@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Process Ancestry Tracer - A Retrospective Process Analysis Tool
+"""PIDtective - A Retrospective Process Analysis Tool
 ==============================================================
 This tool analyzes process ancestry chains without requiring pre-installed monitoring.
 It works by intelligently correlating information from various system sources that
 naturally exist on Linux systems: /proc filesystem, system logs, and other artifacts.
 
-Usage: python3 ancestry_tracer.py <PID> [options]
+Usage: python3 pidtective.py <PID> [options]
 
 The tool follows a forensic detective approach - starting with what can be observed
 and working backwards through available evidence to reconstruct the story of how
-processes came to exist.
+processes came to be.
 """
 import os
 import sys
@@ -318,7 +318,7 @@ class HistoricalEvidenceCollector:
     def _is_process_event(self, journal_entry):
         """
         Determine if a journal entry relates to process activity.
-        We look for various indicators that suggest process creation,
+        We look for various indicators that suggest process generation,
         execution, or termination events.
         """
         message = journal_entry.get('MESSAGE', '').lower()
@@ -579,7 +579,7 @@ class ProcessCorrelationEngine:
         """
         related_events = []
 
-        # Create a time window around the process start time
+        # Generate a time window around the process start time
         process_start = process_info.start_time
         time_window = timedelta(minutes=10)  # 10 minute window for correlation
 
