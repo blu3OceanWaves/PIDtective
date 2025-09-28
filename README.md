@@ -49,13 +49,17 @@ sudo python3 pidtective.py <PID> -v
 ## Example Output
 
 ```
-sudo python3 pidtective.py 2657
+sudo python3 pidtective.py -v 2657
+                                                                                                                                                                                                      
+Found 1196 systemd events
+Collected 339 running processes.
+Collected 1196 log events from the last 24 hours.
 
 === PIDtective Analysis for PID 2657 ===
 
 Analysis Notes:
   • Log evidence sourced from: systemd-journal
-  • Correlation time window set to 300 seconds
+  • Correlation time window set to 300 seconds (defined by LOG_TIME_WINDOW_SEC).
 
 Process Ancestry (from /proc):
   ├── PID 1 (PPID: 0) - systemd
@@ -65,14 +69,24 @@ Process Ancestry (from /proc):
       Command Line: /usr/libexec/udisks2/udisksd
       Started: 2025-09-27 15:56:12
 
+Related Processes (Children/Siblings):
+  • Sibling: PID 522 (systemd-journal)
+    Command Line: /usr/lib/systemd/systemd-journald
+    Started: 2025-09-27 15:55:29
+[...]
+
 Potentially Related Log Entries (Top 10):
   [2025-09-27 15:56:12] (systemd-journal) PID: 1402
-    Message: dbus-daemon[1402]: Successfully activated service...
+    Message: dbus-daemon[1402]: [session uid=125 pid=1402 pidfd=5] Successfully activated service 'org.freedeskto...
     Correlations: Within 300s of ancestor start
+[...]
+
+
+=== End Analysis ===
 
 DISCLAIMER: This tool correlates available evidence but cannot
-guarantee accuracy. Always verify findings through additional
-investigation methods.
+guarantee accuracy.
+Always verify findings through additional investigation methods.
 ```
 
 ## How Correlation Works
