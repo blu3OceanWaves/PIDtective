@@ -36,29 +36,45 @@ sudo python3 pidtective.py <PID> -v
 ## Example output
 
 ```
---- Process Ancestry Report for PID 1140 ---
+sudo python3 pidtective.py -v 2657
+                                                                                                                                                                                                     ─╯
+Found 1196 systemd events
+Collected 339 running processes.
+Collected 1196 log events from the last 24 hours.
 
-Evidence Summary:
-  - Running Processes Scanned: 330
-  - Historical Events Collected: 2718
-    - Systemd-Journal Logs: 2718 events
-  - Analysis Confidence: 1.00 (1.00 = High Confidence)
+=== PIDtective Analysis for PID 2657 ===
 
-Ancestry Chain:
-  ├── PID 1 (PPID: 0)
-      Command: /sbin/init splash
-      Start Time: 2025-09-20 15:17:06
-      Confidence: 1.00
-  └── PID 1140 (PPID: 1)
-      Command: /usr/bin/containerd
-      Start Time: 2025-09-20 15:17:17
-      Confidence: 1.00
+Analysis Notes:
+  • Log evidence sourced from: systemd-journal
+  • Correlation time window set to 300 seconds (defined by LOG_TIME_WINDOW_SEC).
 
-Related Processes:
-  - Sibling: PID 519 (systemd-journal)
-    Start Time: 2025-09-20 15:17:14
-  - Sibling: PID 537 (systemd-timesyn)
-    Start Time: 2025-09-20 15:17:14
+Process Ancestry (from /proc):
+  ├── PID 1 (PPID: 0) - systemd
+      Command Line: /sbin/init splash
+      Started: 2025-09-27 15:55:19
+  └── PID 2657 (PPID: 1) - udisksd
+      Command Line: /usr/libexec/udisks2/udisksd
+      Started: 2025-09-27 15:56:12
+
+Related Processes (Children/Siblings):
+  • Sibling: PID 522 (systemd-journal)
+    Command Line: /usr/lib/systemd/systemd-journald
+    Started: 2025-09-27 15:55:29
+[...]
+
+Potentially Related Log Entries (Top 10):
+  [2025-09-27 15:56:12] (systemd-journal) PID: 1402
+    Message: dbus-daemon[1402]: [session uid=125 pid=1402 pidfd=5] Successfully activated service 'org.freedeskto...
+    Correlations: Within 300s of ancestor start
+[...]
+
+
+=== End Analysis ===
+
+DISCLAIMER: This tool correlates available evidence but cannot
+guarantee accuracy.
+Always verify findings through additional investigation methods.
+
 ...
 ```
 
