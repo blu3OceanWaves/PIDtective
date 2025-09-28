@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PIDtective - Honest Retrospective Process Analysis
+"""PIDtective
 ================================================
 This tool correlates process information from /proc with system logs
 to provide context about process ancestry. It presents evidence clearly
