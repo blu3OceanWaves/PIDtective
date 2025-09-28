@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""PIDtective
+"""PIDtective - Honest Retrospective Process Analysis
 ================================================
 This tool correlates process information from /proc with system logs
-to provide context about process ancestry.
+to provide context about process ancestry. It presents evidence clearly
+without false confidence metrics.
 
 Usage: python3 pidtective.py <PID> [options]
 """
@@ -221,6 +222,8 @@ class LogCollector:
                 print(f"Found {len(systemd_events)} systemd events")
         except Exception as e:
             if self.verbose:
+                # The runtime error output showed the message: 'list' object has no attribute 'lower'
+                # This is now fixed in _looks_process_related
                 print(f"Systemd journal unavailable or error: {e}")
 
         # 2. Try syslog files (fallback)
@@ -289,8 +292,17 @@ class LogCollector:
         return events
 
     def _looks_process_related(self, entry: Dict[str, Any]) -> bool:
-        """Checks if a journal entry message contains process-related keywords."""
-        message = entry.get('MESSAGE', '').lower()
+        """
+        Checks if a journal entry message contains process-related keywords.
+        FIX: Ensures the MESSAGE field is a string before calling .lower().
+        """
+        message = entry.get('MESSAGE', '')
+        
+        # Check if the message is a string. If not (e.g., list or number), skip it.
+        if not isinstance(message, str):
+            return False
+            
+        message = message.lower()
         return any(word in message for word in [
             'started', 'stopped', 'spawned', 'executed', 'launched',
             'process', 'command', 'pid', 'killed', 'exec'
@@ -648,7 +660,7 @@ class PIDtectiveReporter:
         
         # Disclaimer
         print(f"{Colors.WARNING}DISCLAIMER: This tool correlates available evidence but cannot")
-        print(f"guarantee accuracy. Log entries may be coincidental or truncated.")
+        print(f"guarantee accuracy.")
         print(f"Always verify findings through additional investigation methods.{Colors.ENDC}")
 
 def validate_pid(pid: int) -> None:
